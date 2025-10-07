@@ -370,7 +370,7 @@ def compute_gradient_of_variables(output_tensor, out_grad):
     Store the computed result in the grad field of each Variable.
     """
     # a map from node to a list of gradient contributions from each output node
-    node_to_output_grads_list: Dict[Tensor, List[Tensor]] = {}
+    node_to_output_grads_list = {}  #: Dict[Tensor, List[Tensor]]
     # Special note on initializing gradient of
     # We are really taking a derivative of the scalar reduce_sum(output_node)
     # instead of the vector output_node. But this is the common case for loss function.
@@ -380,7 +380,22 @@ def compute_gradient_of_variables(output_tensor, out_grad):
     reverse_topo_order = list(reversed(find_topo_sort([output_tensor])))
 
     ### BEGIN YOUR SOLUTION
-    raise NotImplementedError()
+    for i in reverse_topo_order:
+
+        vi_bar = sum(node_to_output_grads_list[i])
+        if i.requires_grad:
+            i.grad = vi_bar
+
+        if i.op is not None:
+            input_grads = i.op.gradient(vi_bar, i)
+            input_grads = input_grads if isinstance(input_grads, tuple) else (input_grads,)
+
+            for k, g in zip(i.inputs, input_grads):
+                if g is None:
+                    continue
+                node_to_output_grads_list.setdefault(k, []).append(g)
+
+    return node_to_output_grads_list[output_tensor]
     ### END YOUR SOLUTION
 
 
@@ -393,14 +408,26 @@ def find_topo_sort(node_list: List[Value]) -> List[Value]:
     sort.
     """
     ### BEGIN YOUR SOLUTION
-    raise NotImplementedError()
+    for node in node_list:
+        visited = set()
+        topo_order = []
+        topo_sort_dfs(node, visited, topo_order)
+    
+    return topo_order
     ### END YOUR SOLUTION
 
 
 def topo_sort_dfs(node, visited, topo_order):
     """Post-order DFS"""
     ### BEGIN YOUR SOLUTION
-    raise NotImplementedError()
+    if node in visited:
+        return
+    
+    visited.add(node)
+    for n in node.inputs:
+        topo_sort_dfs(n, visited, topo_order)
+    topo_order.append(node)
+    return
     ### END YOUR SOLUTION
 
 
