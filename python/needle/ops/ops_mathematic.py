@@ -17,6 +17,7 @@ import numpy as array_api
 
 class EWiseAdd(TensorOp):
     def compute(self, a: NDArray, b: NDArray):
+        assert a.shape == b.shape, "Shape mismatch in addition"
         return a + b
 
     def gradient(self, out_grad: Tensor, node: Tensor):
@@ -32,6 +33,7 @@ class AddScalar(TensorOp):
         self.scalar = scalar
 
     def compute(self, a: NDArray):
+        # ensure return type is float32
         return a + self.scalar
 
     def gradient(self, out_grad: Tensor, node: Tensor):
@@ -44,6 +46,7 @@ def add_scalar(a, scalar):
 
 class EWiseMul(TensorOp):
     def compute(self, a: NDArray, b: NDArray):
+        assert a.shape == b.shape, "Shape mismatch in multiplication"
         return a * b
 
     def gradient(self, out_grad: Tensor, node: Tensor):
@@ -75,6 +78,7 @@ class EWisePow(TensorOp):
 
     def compute(self, a: NDArray, b: NDArray) -> NDArray:
         ### BEGIN YOUR SOLUTION
+        assert a.shape == b.shape, "Shape mismatch in power"
         return a ** b
         ### END YOUR SOLUTION
 
@@ -118,6 +122,7 @@ class EWiseDiv(TensorOp):
 
     def compute(self, a, b):
         ### BEGIN YOUR SOLUTION
+        assert a.shape == b.shape, "Shape mismatch in division"
         return a / b
         ### END YOUR SOLUTION
 
@@ -138,7 +143,7 @@ class DivScalar(TensorOp):
 
     def compute(self, a):
         ### BEGIN YOUR SOLUTION
-        return a / self.scalar
+        return array_api.float32(a / self.scalar)
         ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
@@ -184,7 +189,8 @@ class Reshape(TensorOp):
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
         a = node.inputs[0]
-        return (out_grad.reshape(a.shape),)
+        # return (out_grad.reshape(a.shape),)
+        return (reshape(out_grad, a.shape),)
         ### END YOUR SOLUTION
 
 
@@ -242,8 +248,9 @@ class Summation(TensorOp):
         a = node.inputs[0]
         shape = list(out_grad.shape)
 
-        if self.axes:
-            for axis in sorted(self.axes):
+        if self.axes is not None:
+            axes = self.axes if isinstance(self.axes, (tuple, list)) else (self.axes,)
+            for axis in sorted(axes):
                 shape.insert(axis, 1)
 
         return (broadcast_to(reshape(out_grad, shape), a.shape),)
@@ -344,13 +351,13 @@ def exp(a):
 class ReLU(TensorOp):
     def compute(self, a):
         ### BEGIN YOUR SOLUTION
-        return array_api.maximum(a, 0)
+        return array_api.maximum(a, 0, dtype='float32')
         ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION        
         mask = (node.realize_cached_data() > 0)
-        return out_grad * Tensor(mask)
+        return Tensor(out_grad * Tensor(mask), dtype='float32')
         ### END YOUR SOLUTION
 
 
