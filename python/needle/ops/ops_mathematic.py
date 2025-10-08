@@ -34,7 +34,7 @@ class AddScalar(TensorOp):
 
     def compute(self, a: NDArray):
         # ensure return type is float32
-        return a + self.scalar
+        return (a + self.scalar).astype('float32')
 
     def gradient(self, out_grad: Tensor, node: Tensor):
         return out_grad
