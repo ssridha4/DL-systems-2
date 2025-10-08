@@ -301,7 +301,7 @@ def matmul(a, b):
 class Negate(TensorOp):
     def compute(self, a):
         ### BEGIN YOUR SOLUTION
-        return -1 * a
+        return -a
         ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):

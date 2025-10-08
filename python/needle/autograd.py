@@ -387,7 +387,7 @@ def compute_gradient_of_variables(output_tensor, out_grad):
             i.grad = vi_bar
 
         if i.op is not None:
-            input_grads = i.op.gradient(vi_bar, i)
+            input_grads = i.op.gradient_as_tuple(vi_bar, i)
             input_grads = input_grads if isinstance(input_grads, tuple) else (input_grads,)
 
             for k, g in zip(i.inputs, input_grads):

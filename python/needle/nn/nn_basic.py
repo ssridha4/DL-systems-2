@@ -110,7 +110,8 @@ class Flatten(Module):
 class ReLU(Module):
     def forward(self, x: Tensor) -> Tensor:
         ### BEGIN YOUR SOLUTION
-        return ops.relu(x)
+        result = ops.relu(x)
+        return result
         ### END YOUR SOLUTION
 
 class Sequential(Module):
@@ -130,11 +131,18 @@ class SoftmaxLoss(Module):
     def forward(self, logits: Tensor, y: Tensor) -> Tensor:
         ### BEGIN YOUR SOLUTION
         y_onehot = init.one_hot(logits.shape[1], y, dtype='float32', device=logits.device)
-        z_y = ops.summation(y_onehot * logits, axes=(1,))
-        loss = ops.logsumexp(logits, axes=(1,)) - z_y
-        avg_loss = ops.summation(loss, axes=(0,)) / logits.shape[0]
+        # z_y = ops.summation(y_onehot * logits, axes=(1,))
+        # loss = ops.logsumexp(logits, axes=(1,)) - z_y
+        # avg_loss = ops.summation(loss, axes=(0,)) / logits.shape[0]
         # return Tensor(avg_loss, dtype='float32')
-        return avg_loss
+        # print('softmaxloss', avg_loss)
+        # return avg_loss
+        
+
+        a = ops.logsumexp(logits, axes=(1,)).sum()
+        b = ops.summation(y_onehot * logits)
+        result = a - b
+        return result / logits.shape[0]
         ### END YOUR SOLUTION
 
 
