@@ -86,15 +86,17 @@ class Linear(Module):
         self.out_features = out_features
 
         ### BEGIN YOUR SOLUTION
-        self.weight = Parameter(init.kaiming_uniform(fan_in=in_features, fan_out=out_features, device=device, dtype=dtype))
-        self.bias = Parameter(init.kaiming_uniform(fan_in=out_features, fan_out=1, device=device, dtype=dtype)) if bias else None
-        self.bias = self.bias.reshape((1, self.out_features))
+        weight = Parameter(init.kaiming_uniform(fan_in=in_features, fan_out=out_features, device=device, dtype=dtype))
+        bias = Parameter(init.kaiming_uniform(fan_in=out_features, fan_out=1, device=device, dtype=dtype)) if bias else None
+        self.weight = weight
+        self.bias = bias.reshape((1, self.out_features))
         ### END YOUR SOLUTION
 
     def forward(self, X: Tensor) -> Tensor:
         ### BEGIN YOUR SOLUTION
-        result = X @ self.weight        
-        return result + self.bias.broadcast_to(result.shape) if self.bias is not None else result
+        result = X @ self.weight 
+        result = result + self.bias.broadcast_to(result.shape) if self.bias is not None else result
+        return result
         ### END YOUR SOLUTION
 
 
@@ -131,7 +133,6 @@ class SoftmaxLoss(Module):
         z_y = ops.summation(y_onehot * logits, axes=(1,))
         loss = ops.logsumexp(logits, axes=(1,)) - z_y
         avg_loss = ops.summation(loss, axes=(0,)) / logits.shape[0]
-        # print(avg_loss.dtype)
         # return Tensor(avg_loss, dtype='float32')
         return avg_loss
         ### END YOUR SOLUTION
@@ -158,7 +159,7 @@ class BatchNorm1d(Module):
             mean = ops.summation(x, axes=0) / batch_size
             mean_broadcast = ops.reshape(mean, (1, feature_dim)).broadcast_to(x.shape)
 
-            var = ops.summation((x - mean_broadcast) ** 2, axes=0) / batch_size
+            var = ops.summation((x - mean_broadcast) ** 2.0, axes=0) / batch_size
             var_broadcast = ops.reshape(var, (1, feature_dim)).broadcast_to(x.shape)
             
             self.running_mean = (1 - self.momentum) * self.running_mean + self.momentum * mean

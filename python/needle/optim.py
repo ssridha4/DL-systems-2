@@ -39,7 +39,8 @@ class SGD(Optimizer):
             
 
             self.u[p] = self.momentum * self.u[p] + (1 - self.momentum) * grad
-            p.data = p.data - self.lr * self.u[p]
+            # p.data = p.data - ndl.Tensor(self.lr * self.u[p].data, dtype=p.dtype)
+            p.data = (p - self.lr * self.u[p]).data
 
         ### END YOUR SOLUTION
 

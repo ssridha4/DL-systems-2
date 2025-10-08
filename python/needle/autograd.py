@@ -382,7 +382,7 @@ def compute_gradient_of_variables(output_tensor, out_grad):
     ### BEGIN YOUR SOLUTION
     for i in reverse_topo_order:
 
-        vi_bar = sum(node_to_output_grads_list[i])
+        vi_bar = sum_node_list(node_to_output_grads_list[i])
         if i.requires_grad:
             i.grad = vi_bar
 

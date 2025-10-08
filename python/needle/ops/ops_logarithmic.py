@@ -71,7 +71,8 @@ class LogSumExp(TensorOp):
             # If axes is None, out_grad is a scalar, broadcast to full input shape
             out_grad_broadcast = broadcast_to(out_grad, a.shape)
         
-        return out_grad_broadcast * grad_components_tensor
+        result = out_grad_broadcast * grad_components_tensor
+        return result
         ### END YOUR SOLUTION
 
 

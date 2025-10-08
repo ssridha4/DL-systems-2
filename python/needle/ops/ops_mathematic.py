@@ -34,7 +34,7 @@ class AddScalar(TensorOp):
 
     def compute(self, a: NDArray):
         # ensure return type is float32
-        return (a + self.scalar).astype('float32')
+        return a + self.scalar
 
     def gradient(self, out_grad: Tensor, node: Tensor):
         return out_grad
@@ -356,8 +356,10 @@ class ReLU(TensorOp):
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION        
-        mask = (node.realize_cached_data() > 0)
-        return Tensor(out_grad * Tensor(mask), dtype='float32')
+        # mask = (node.realize_cached_data() > 0)
+        # return Tensor(out_grad * Tensor(mask), dtype='float32')
+        result = out_grad * (node.inputs[0].realize_cached_data() > 0)
+        return result
         ### END YOUR SOLUTION
 
 
